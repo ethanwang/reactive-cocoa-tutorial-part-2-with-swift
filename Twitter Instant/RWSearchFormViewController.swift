@@ -51,7 +51,9 @@ class RWSearchFormViewController: UIViewController {
       .observeOn(UIScheduler())
       .startWithSignal { (signal, _) -> () in
         signal.observeNext {
-          NSLog("count: \($0["statuses"]!.count)")
+          let statuses = $0["statuses"] as! [NSDictionary]
+          let tweets = statuses.map { RWTweet.tweetWithStatus($0) }
+          self.resultsViewController.displayTweets(tweets)
         }
         signal.observeFailed { NSLog("An error occurred: \($0)") }
     }
