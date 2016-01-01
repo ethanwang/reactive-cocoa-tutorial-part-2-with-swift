@@ -37,6 +37,7 @@ class RWSearchResultsViewController: UITableViewController {
     cell.twitterAvatarView.image = nil
 
     self.signalForLoadingImage(tweet.profileImageUrl)
+      .takeUntil(cell.rac_prepareForReuseSignal.toSignalProducer().map { _ in () }.mapError { $0 as! NoError })
       .observeOn(UIScheduler())
       .startWithNext { (image) -> () in cell.twitterAvatarView.image = image }
 
