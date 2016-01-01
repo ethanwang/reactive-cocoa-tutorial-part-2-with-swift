@@ -47,6 +47,7 @@ class RWSearchFormViewController: UIViewController {
       .then(searchText.rac_textSignal().toSignalProducer())
       .map { $0 as! String }
       .filter { self.isValidText($0) }
+      .throttle(2.0, onScheduler: QueueScheduler.mainQueueScheduler)
       .flatMap(.Concat, transform: { self.signalForSearchWithText($0) })
       .observeOn(UIScheduler())
       .startWithSignal { (signal, _) -> () in
