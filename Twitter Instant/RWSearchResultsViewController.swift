@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import ReactiveCocoa
 
 class RWSearchResultsViewController: UITableViewController {
 
@@ -33,7 +34,24 @@ class RWSearchResultsViewController: UITableViewController {
 
     cell.twitterStatusText.text = tweet.status
     cell.twitterUsernameText.text = "@\(tweet.username)"
+    cell.twitterAvatarView.image = nil
+
+    self.signalForLoadingImage(tweet.profileImageUrl)
+      .observeOn(UIScheduler())
+      .startWithNext { (image) -> () in cell.twitterAvatarView.image = image }
 
     return cell
+  }
+
+  func signalForLoadingImage(imageUrl: String) -> SignalProducer<UIImage, NSError> {
+    let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
+    let scheduler = QueueScheduler(queue: queue)
+
+    return SignalProducer<UIImage, NSError> { o, _ in
+      let data = NSData(contentsOfURL: NSURL(string: imageUrl)!)!
+      let image = UIImage(data: data)!
+      o.sendNext(image)
+      o.sendCompleted()
+    }.startOn(scheduler)
   }
 }
