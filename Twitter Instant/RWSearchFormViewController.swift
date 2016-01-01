@@ -43,13 +43,13 @@ class RWSearchFormViewController: UIViewController {
     self.accountStore = ACAccountStore()
     self.twitterAccountType = self.accountStore.accountTypeWithAccountTypeIdentifier(ACAccountTypeIdentifierTwitter)
 
-    self.requestAccessToTwitterSignal().startWithSignal { (signal, _) -> () in
-      signal.observeNext { (_) -> () in
-        NSLog("Access granted")
-      }
-      signal.observeFailed { (error) -> () in
-        NSLog("An error occurred: \(error)")
-      }
+    self.requestAccessToTwitterSignal()
+      .then(searchText.rac_textSignal().toSignalProducer())
+      .map { $0 as! String }
+      .filter { self.isValidText($0) }
+      .startWithSignal { (signal, _) -> () in
+        signal.observeNext { NSLog("next: \($0)") }
+        signal.observeFailed { NSLog("An error occurred: \($0)") }
     }
   }
 
