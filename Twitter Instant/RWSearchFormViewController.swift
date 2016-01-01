@@ -26,7 +26,9 @@ class RWSearchFormViewController: UIViewController {
 
     self.searchText.rac_textSignal().toSignalProducer()
       .map { self.isValidText($0 as! String) ? UIColor.whiteColor() : UIColor.yellowColor() }
-      .startWithNext { self.searchText.backgroundColor = $0 }
+      .startWithNext { [weak self] in
+        self?.searchText.backgroundColor = $0
+    }
   }
 }
 
