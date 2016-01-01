@@ -48,6 +48,7 @@ class RWSearchFormViewController: UIViewController {
       .map { $0 as! String }
       .filter { self.isValidText($0) }
       .flatMap(.Concat, transform: { self.signalForSearchWithText($0) })
+      .observeOn(UIScheduler())
       .startWithSignal { (signal, _) -> () in
         signal.observeNext {
           NSLog("count: \($0["statuses"]!.count)")
